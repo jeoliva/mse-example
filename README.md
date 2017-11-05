@@ -1,0 +1,1 @@
+Very basic example about how to use Media Source Extensions to play a video composed by chunks in the browser.
