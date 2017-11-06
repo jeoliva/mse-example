@@ -1,9 +1,19 @@
 'use strict';
 
-const segments = [
-    'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps_480x270_600k/bbb_30fps_480x270_600k_0.m4v',
-    'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps_480x270_600k/bbb_30fps_480x270_600k_1.m4v',
-    'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps_480x270_600k/bbb_30fps_480x270_600k_2.m4v'
+const segments = [{
+        url: 'https://login.plasticpictures.tv/stream/cb521ce80da6efb888f1efdc831ec0e0dd55bd6a/240p.webm',
+        range: '0-262'
+
+    }, {
+        url: 'https://login.plasticpictures.tv/stream/cb521ce80da6efb888f1efdc831ec0e0dd55bd6a/240p.webm',
+        range: '263-502098'
+    }, {
+        url: 'https://login.plasticpictures.tv/stream/1813f78d489c4c77b0597221218b54bae9475417/720p.webm',
+        range: '0-263'
+    }, {
+        url: 'https://login.plasticpictures.tv/stream/1813f78d489c4c77b0597221218b54bae9475417/720p.webm',
+        range: '1937111-3753617'
+    }
 ];
 
 const player = document.getElementById('player');
@@ -21,7 +31,7 @@ function open() {
 
 function onMediaSourceOpen() {
     console.log(`onMediaSourceOpen - Loading initial segment ${segments[0]}`);
-    sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.640015"');
+    sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp9"');
     sourceBuffer.addEventListener('updateend', next);
     fetchSegment(segments[0], appendBuffer);
 
@@ -46,14 +56,17 @@ function next() {
     }
 }
 
-function fetchSegment(url, callback) {
+function fetchSegment(request, callback) {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
+    xhr.open('GET', request.url);
     xhr.responseType = 'arraybuffer';
+    if (request.range) {
+        xhr.setRequestHeader('Range', 'bytes=' + request.range);
+    }
     xhr.onload = function () {
-        console.log(`Downloaded segment ${url}. Status ${xhr.status}`);
-        if (xhr.status != 200) {
-            console.error(`Error ${xhr.status} while fetching the segment ${url}`);
+        console.log(`Downloaded segment ${request.url}. Status ${xhr.status}`);
+        if (xhr.status < 200 || xhr.status > 299) {
+            console.error(`Error ${xhr.status} while fetching the segment ${request.url}`);
             return false;
         }
         callback(xhr.response);
