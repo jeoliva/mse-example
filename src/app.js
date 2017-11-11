@@ -52,7 +52,7 @@ function fetchSegment(url, callback) {
     xhr.responseType = 'arraybuffer';
     xhr.onload = function () {
         console.log(`Downloaded segment ${url}. Status ${xhr.status}`);
-        if (xhr.status != 200) {
+        if (xhr.status < 200 || xhr.status > 299) {
             console.error(`Error ${xhr.status} while fetching the segment ${url}`);
             return false;
         }
